@@ -46,6 +46,47 @@ services:
     networks:
       - frontend_net
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - backend_net
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - backend_net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - backend_net
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://clinic_user:StrongPassword123!@db:5432/clinic_db?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - backend_net
+
 volumes:
   postgres_data:
 
