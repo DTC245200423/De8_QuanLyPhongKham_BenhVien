@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:15-alpine
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend_net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - backend_net
+
+  web:
+    build: ./web
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./web:/app
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      - db
+    networks:
+      - frontend_net
+      - backend_net
+
+volumes:
+  postgres_data:
+
+networks:
+  frontend_net:
+  backend_net:
