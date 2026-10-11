@@ -87,6 +87,26 @@ services:
     networks:
       - backend_net
 
+  # THÊM 2 SERVICE MỚI Ở ĐÂY
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/local-config.yaml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - backend_net
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - backend_net
+
 volumes:
   postgres_data:
 
