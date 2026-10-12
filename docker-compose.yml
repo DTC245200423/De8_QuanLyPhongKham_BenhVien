@@ -87,9 +87,8 @@ services:
     networks:
       - backend_net
 
-  # THÊM 2 SERVICE MỚI Ở ĐÂY
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:2.9.0
     ports:
       - "3100:3100"
     volumes:
@@ -99,11 +98,15 @@ services:
       - backend_net
 
   promtail:
-    image: grafana/promtail:latest
+    image: grafana/promtail:2.9.0
+    user: root
     volumes:
+      - //var/run/docker.sock:/var/run/docker.sock
       - ./promtail/config.yml:/etc/promtail/config.yml
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
     networks:
       - backend_net
 
