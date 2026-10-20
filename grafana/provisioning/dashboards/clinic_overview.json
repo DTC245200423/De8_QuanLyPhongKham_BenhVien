@@ -169,7 +169,7 @@
       "id": 7,
       "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
       "targets": [
-        { "expr": "rate(container_cpu_usage_seconds_total{name=~\".+\"}[1m])", "legendFormat": "{{name}}", "refId": "A" }
+        { "expr": "rate(container_cpu_usage_seconds_total{id=~\"/docker/.*\"}[1m])", "legendFormat": "{{id}}", "refId": "A" }
       ],
       "title": "CPU Usage per Container",
       "type": "timeseries"
@@ -188,7 +188,7 @@
       "id": 8,
       "options": { "legend": { "displayMode": "table", "placement": "bottom" } },
       "targets": [
-        { "expr": "container_memory_usage_bytes{name=~\".+\"}", "legendFormat": "{{name}}", "refId": "A" }
+        { "expr": "container_memory_usage_bytes{id=~\"/docker/.*\"}", "legendFormat": "{{id}}", "refId": "A" }
       ],
       "title": "Memory Usage per Container",
       "type": "timeseries"
