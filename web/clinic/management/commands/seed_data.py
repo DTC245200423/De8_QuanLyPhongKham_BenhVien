@@ -169,4 +169,12 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(self.style.SUCCESS(f"Đã tạo {len(appointments_data)} lịch khám mẫu."))
+
+        # 4. Tạo tài khoản Superuser admin
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@clinic.vn', 'admin')
+            self.stdout.write(self.style.SUCCESS("Đã tạo tài khoản quản trị Django Admin: admin / admin"))
+
         self.stdout.write(self.style.SUCCESS("Khởi tạo dữ liệu mẫu hoàn tất!"))
