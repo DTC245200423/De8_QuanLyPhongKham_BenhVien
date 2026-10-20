@@ -1,0 +1,109 @@
+{% extends 'clinic/base.html' %}
+
+{% block title %}Hồ sơ Bệnh nhân: {{ patient.full_name }} | Clinic Care{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'patient_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+    </a>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h3 class="fw-bold mb-1">Hồ sơ Bệnh án: {{ patient.full_name }}</h3>
+            <span class="badge bg-light text-dark border">Mã hồ sơ: #BN{{ patient.pk|stringformat:"04d" }}</span>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#newAppointmentForPatientModal">
+            <i class="bi bi-calendar-plus me-1"></i> Đặt lịch khám cho BN này
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Patient Info Card -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-person-vcard text-primary me-2"></i>Thông tin Cá nhân</h5>
+            </div>
+            <div class="card-body pt-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                        <span class="text-muted">Họ và tên:</span>
+                        <strong class="text-dark">{{ patient.full_name }}</strong>
+                    </li>
+                    <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                        <span class="text-muted">Giới tính:</span>
+                        <span>{{ patient.gender }}</span>
+                    </li>
+                    <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                        <span class="text-muted">Ngày sinh:</span>
+                        <span>{{ patient.date_of_birth|date:"d/m/Y"|default:"Chưa rõ" }}</span>
+                    </li>
+                    <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                        <span class="text-muted">Số điện thoại:</span>
+                        <strong class="text-primary">{{ patient.phone }}</strong>
+                    </li>
+                    <li class="list-group-item px-0 py-2">
+                        <div class="text-muted mb-1">Địa chỉ:</div>
+                        <div>{{ patient.address|default:"Chưa cập nhật địa chỉ" }}</div>
+                    </li>
+                    <li class="list-group-item px-0 py-2">
+                        <div class="text-muted mb-1">Tiền sử bệnh lý:</div>
+                        <div class="p-2 bg-light rounded text-secondary small">
+                            {{ patient.medical_history|default:"Không có tiền sử bệnh lý đặc biệt" }}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment History -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-clock-history text-info me-2"></i>Lịch sử các lần khám bệnh</h5>
+                <span class="badge bg-secondary rounded-pill">{{ appointments.count }} lần</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ngày khám</th>
+                            <th>Bác sĩ</th>
+                            <th>Triệu chứng ban đầu</th>
+                            <th>Chẩn đoán / Đơn thuốc</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ appt.appointment_date|date:"H:i" }}</div>
+                                <div class="text-muted small">{{ appt.appointment_date|date:"d/m/Y" }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-medium text-primary">BS. {{ appt.doctor.full_name }}</div>
+                                <div class="text-muted small">{{ appt.doctor.specialty }}</div>
+                            </td>
+                            <td><span class="d-inline-block text-truncate" style="max-width: 150px;">{{ appt.reason }}</span></td>
+                            <td><span class="d-inline-block text-truncate" style="max-width: 180px;">{{ appt.diagnosis|default:"Chưa có kết luận" }}</span></td>
+                            <td>
+                                <span class="badge badge-status badge-{{ appt.status }}">{{ appt.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                Bệnh nhân này chưa có lịch hẹn khám nào.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

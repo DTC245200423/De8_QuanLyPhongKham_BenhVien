@@ -45,10 +45,24 @@ docker compose ps
 | Grafana | http://localhost:3000 | admin / admin |
 | Prometheus | http://localhost:9090 | - |
 
-## Truy vấn LogQL mẫu
+## Truy vấn LogQL mẫu (Thực hiện trên Grafana Explore -> Loki)
 
-{container_name="de8_quanlyphongkham_benhvien-web-1"}
-{container_name="de8_quanlyphongkham_benhvien-web-1"} |= "error"
+1. **Xem toàn bộ log của tất cả container:**
+   ```logql
+   {container_name=~".+"}
+   ```
+2. **Xem log riêng của ứng dụng Web phòng khám:**
+   ```logql
+   {container_name=~".*web.*"}
+   ```
+3. **Lọc log có chứa từ khóa lỗi hoặc cảnh báo:**
+   ```logql
+   {container_name=~".*"} |= "error"
+   ```
+4. **Lọc log các request HTTP GET thành công vào hệ thống:**
+   ```logql
+   {container_name=~".*web.*"} |= "GET /"
+   ```
 
 ## Dừng hệ thống
 

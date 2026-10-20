@@ -1,0 +1,128 @@
+{% extends 'clinic/base.html' %}
+
+{% block title %}Quản lý Bác sĩ | Clinic Care{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Đội ngũ Bác sĩ Phòng khám</h3>
+        <p class="text-muted mb-0">Quản lý danh sách bác sĩ, phân khoa và thông tin liên hệ</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addDoctorModal">
+        <i class="bi bi-person-plus-fill me-1"></i> Thêm Bác sĩ Mới
+    </button>
+</div>
+
+<!-- Filter & Search Toolbar -->
+<div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ search }}" class="form-control border-start-0" placeholder="Tìm theo tên bác sĩ hoặc số điện thoại...">
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-4">
+                <select name="specialty" class="form-select">
+                    <option value="">-- Tất cả chuyên khoa --</option>
+                    {% for sp in specialties %}
+                        <option value="{{ sp }}" {% if selected_specialty == sp %}selected{% endif %}>{{ sp }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 col-lg-3 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary px-3">Lọc</button>
+                {% if search or selected_specialty %}
+                    <a href="{% url 'doctor_list' %}" class="btn btn-outline-secondary">Đặt lại</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Doctor Grid -->
+<div class="row g-3">
+    {% for doc in doctors %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                        <i class="bi bi-person-fill-check fs-3"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <span class="badge bg-primary bg-opacity-10 text-primary mb-1">{{ doc.specialty }}</span>
+                        <h5 class="fw-bold mb-1">BS. {{ doc.full_name }}</h5>
+                        <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1 text-danger"></i>{{ doc.room|default:'Chưa gán phòng' }}</p>
+                    </div>
+                </div>
+                <hr class="my-3 text-muted">
+                <div class="small text-secondary mb-2">
+                    <i class="bi bi-telephone me-2 text-primary"></i><strong>SĐT:</strong> {{ doc.phone }}
+                </div>
+                <div class="small text-secondary mb-3">
+                    <i class="bi bi-envelope me-2 text-primary"></i><strong>Email:</strong> {{ doc.email|default:'Chưa cập nhật' }}
+                </div>
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <span class="badge {% if doc.is_active %}bg-success{% else %}bg-secondary{% endif %} bg-opacity-10 {% if doc.is_active %}text-success{% else %}text-secondary{% endif %} rounded-pill px-2 py-1">
+                        {% if doc.is_active %}Đang công tác{% else %}Tạm nghỉ{% endif %}
+                    </span>
+                    <a href="{% url 'doctor_delete' doc.pk %}" onclick="return confirm('Bạn có chắc chắn muốn xóa bác sĩ {{ doc.full_name }}?');" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                        <i class="bi bi-trash"></i> Xóa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card border-0 shadow-sm p-5 text-center text-muted">
+            <i class="bi bi-person-x fs-1 mb-2"></i>
+            <h5>Không tìm thấy bác sĩ nào phù hợp.</h5>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal Thêm Bác sĩ -->
+<div class="modal fade" id="addDoctorModal" tabindex="-1" aria-labelledby="addDoctorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <form method="POST" action="{% url 'doctor_list' %}">
+                {% csrf_token %}
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="addDoctorModalLabel"><i class="bi bi-person-plus me-2"></i>Thêm Bác sĩ Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Họ và tên bác sĩ <span class="text-danger">*</span></label>
+                        <input type="text" name="full_name" class="form-control" placeholder="VD: Nguyễn Văn An" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Chuyên khoa <span class="text-danger">*</span></label>
+                        <input type="text" name="specialty" class="form-control" placeholder="VD: Nội tổng quát, Nhi khoa, Tim mạch..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="text" name="phone" class="form-control" placeholder="VD: 0912345678" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="VD: bacsi.an@clinic.vn">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Phòng khám / Bàn khám</label>
+                        <input type="text" name="room" class="form-control" placeholder="VD: Phòng khám 102 - Tầng 1">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Lưu Bác sĩ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
