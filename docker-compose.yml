@@ -11,7 +11,7 @@ services:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_PASSWORD: StrongPassword123!
     ports:
       - "5050:80"
     depends_on:
@@ -27,8 +27,6 @@ services:
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./web:/app
-    ports:
-      - "8000:8000"
     deploy:
       resources:
         limits:
@@ -66,7 +64,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=StrongPassword123!
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
     networks:
